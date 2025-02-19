@@ -18,7 +18,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             TwitterCounterAppTheme {
-                TweetScreen(viewModel)
+                TweetScreen(viewModel) {
+                    finish()
+                }
             }
         }
     }

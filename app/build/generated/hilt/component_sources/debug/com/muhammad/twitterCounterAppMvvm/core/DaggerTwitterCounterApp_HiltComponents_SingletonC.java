@@ -566,7 +566,7 @@ public final class DaggerTwitterCounterApp_HiltComponents_SingletonC {
     }
 
     @Override
-    public void injectTwitterCounterApp(TwitterCounterApp arg0) {
+    public void injectTwitterCounterApp(TwitterCounterApp twitterCounterApp) {
     }
 
     @Override

@@ -11,18 +11,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -31,98 +40,118 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.muhammad.twitterCounterAppMvvm.R
 import com.muhammad.twitterCounterAppMvvm.ui.TweetViewModel
+import com.muhammad.twitterCounterAppMvvm.ui.theme.backgroundColor
+import com.muhammad.twitterCounterAppMvvm.ui.theme.clearTextColor
+import com.muhammad.twitterCounterAppMvvm.ui.theme.copyTextColor
+import com.muhammad.twitterCounterAppMvvm.ui.theme.titleColor
+import com.muhammad.twitterCounterAppMvvm.ui.theme.twitterColor
+import com.muhammad.twitterCounterAppMvvm.utils.copyToClipboard
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TweetScreen(viewModel: TweetViewModel) {
+fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
     val charCount by viewModel.charCount.collectAsState()
+    val tweetText by viewModel.tweetText.collectAsState()
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = "Twitter character count",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color(android.graphics.Color.parseColor("#000000"))
+        // Toolbar
+        TopAppBar(
+            title = { Text(text = "Twitter character count") },
+            navigationIcon = {
+                IconButton(onClick = onBackClick) {
+                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            },
+            colors = TopAppBarColors(
+                containerColor = Color.White,
+                scrolledContainerColor = Color.White,
+                navigationIconContentColor = titleColor,
+                titleContentColor = titleColor,
+                actionIconContentColor = titleColor
+            )
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Image(
-            painter = painterResource(id = R.drawable.twitter_icon),
-            contentDescription = "Twitter Icon",
-            modifier = Modifier.size(64.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         ) {
-            StatBox(title = "Characters Typed", value = "$charCount/280")
-            StatBox(title = "Characters Remaining", value = "${280 - charCount}")
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Text Field
-        TweetTextField(
-            viewModel = viewModel,
-            modifier = Modifier.fillMaxWidth()
-        )
+            Image(
+                painter = painterResource(id = R.drawable.twitter_icon),
+                contentDescription = "Twitter Icon",
+                modifier = Modifier
+                    .size(64.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(
-                onClick = { /* Copy Text */ },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(
-                        android.graphics.Color.parseColor(
-                            "#00A970"
-                        )
-                    )
-                )
-
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Copy Text", color = Color.White)
+                StatBox(title = "Characters Typed", value = "$charCount/280")
+                StatBox(title = "Characters Remaining", value = "${280 - charCount}")
             }
 
-            Button(
-                onClick = { viewModel.onTweetTextChanged("") },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(
-                        android.graphics.Color.parseColor(
-                            "#DC0125"
-                        )
-                    )
-                ) // Red
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Text Field
+            TweetTextField(
+                viewModel = viewModel,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(text = "Clear Text", color = Color.White)
+                Button(
+                    onClick = { copyToClipboard(context = context, tweetText) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = copyTextColor
+                    ),
+                    modifier = Modifier
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(text = "Copy Text", color = Color.White)
+                }
+
+                Button(
+                    onClick = { viewModel.onTweetTextChanged("") },
+                    colors = ButtonDefaults.buttonColors(containerColor = clearTextColor),
+                    modifier = Modifier
+                        .wrapContentWidth(Alignment.CenterHorizontally)
+                        .height(52.dp),
+                    shape = RoundedCornerShape(10.dp)
+                ) {
+                    Text(text = "Clear Text", color = Color.White)
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-        Button(
-            onClick = { viewModel.postTweet() },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(
-                    android.graphics.Color.parseColor(
-                        "#03A9F4"
-                    )
-                )
-            ), // Twitter Blue
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Post tweet", color = Color.White)
+            Button(
+                onClick = { viewModel.postTweet() },
+                colors = ButtonDefaults.buttonColors(containerColor = twitterColor),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(text = "Post tweet", color = Color.White)
+            }
         }
     }
 }
@@ -132,13 +161,28 @@ fun StatBox(title: String, value: String) {
     Column(
         modifier = Modifier
             .background(
-                Color(android.graphics.Color.parseColor("#E0F7FA")),
-                shape = RoundedCornerShape(8.dp)
+                backgroundColor,
+                shape = RoundedCornerShape(10.dp)
             )
-            .padding(16.dp)
+            .padding(horizontal = 16.dp)
     ) {
-        Text(text = title, fontSize = 14.sp, color = Color.Gray)
-        Text(text = value, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+        Text(
+            text = title,
+            fontSize = 14.sp,
+            color = Color.Black,
+            modifier = Modifier
+                .wrapContentWidth(Alignment.CenterHorizontally)
+
+        )
+        Text(
+            text = value,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.Black,
+            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally)
+                .padding(vertical = 16.dp)
+        )
     }
 }
 
@@ -161,7 +205,8 @@ fun TweetTextField(
         placeholder = { Text("Start typing! You can enter up to $maxCharacterLimit characters") },
         modifier = modifier
             .fillMaxWidth()
-            .height(150.dp),
+            .height(250.dp),
+        shape = RoundedCornerShape(10.dp),
         maxLines = maxLines,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
