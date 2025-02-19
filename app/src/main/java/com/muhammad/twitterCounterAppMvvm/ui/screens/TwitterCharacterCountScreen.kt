@@ -159,15 +159,29 @@ fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                enabled = charCount in 1..280
             ) {
                 Text(text = "Post tweet", color = Color.White)
             }
 
             when (tweetStatus) {
-                is TweetState.Loading -> CircularProgressIndicator()
-                is TweetState.Success -> Text("✅ Tweet posted successfully!", color = Color.Green)
-                is TweetState.Error -> Text("❌ ${(tweetStatus as TweetState.Error).message}", color = Color.Red)
+                is TweetState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+
+                is TweetState.Success -> Text(
+                    "✅ Tweet posted successfully!",
+                    color = Color.Green
+                )
+
+                is TweetState.Error -> Text(
+                    "❌ ${(tweetStatus as TweetState.Error).message}",
+                    color = Color.Red
+                )
+
                 is TweetState.Idle -> {}
             }
         }
@@ -211,14 +225,13 @@ fun TweetTextField(
     modifier: Modifier = Modifier
 ) {
     val maxCharacterLimit = 280
+    val charCount by viewModel.charCount.collectAsState()
     val tweetText by viewModel.tweetText.collectAsState()
 
     OutlinedTextField(
         value = tweetText,
         onValueChange = { newText ->
-            if (newText.length <= maxCharacterLimit) {
-                viewModel.onTweetTextChanged(newText)
-            }
+            viewModel.onTweetTextChanged(newText)
         },
         placeholder = {
             Text(
@@ -236,12 +249,13 @@ fun TweetTextField(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Done
         ),
-        isError = tweetText.length > maxCharacterLimit,
+        isError = charCount > maxCharacterLimit,
         colors = TextFieldDefaults.colors(
             focusedIndicatorColor = borderColor,
             unfocusedIndicatorColor = borderColor,
             focusedContainerColor = Color.White,
-            unfocusedContainerColor = Color.White
+            unfocusedContainerColor = Color.White,
+            errorIndicatorColor = Color.Red
         )
     )
 }
