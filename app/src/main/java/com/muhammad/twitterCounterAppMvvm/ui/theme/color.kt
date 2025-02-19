@@ -18,6 +18,18 @@ val titleColor = Color(
     )
 )
 
+val placeHolderColor = Color(
+    android.graphics.Color.parseColor(
+        "#5E6160"
+    )
+)
+
+val borderColor = Color(
+    android.graphics.Color.parseColor(
+        "#EDEDED"
+    )
+)
+
 val copyTextColor = Color(
     android.graphics.Color.parseColor(
         "#00A970"

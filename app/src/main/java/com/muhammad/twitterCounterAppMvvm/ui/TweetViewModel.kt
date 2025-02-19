@@ -1,11 +1,12 @@
 package com.muhammad.twitterCounterAppMvvm.ui
 
-import androidx.compose.runtime.mutableStateOf
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.muhammad.twitterCounterAppMvvm.core.TweetState
 import com.muhammad.twitterCounterAppMvvm.data.repository.TwitterRepository
 import com.muhammad.twitterCounterAppMvvm.domain.CalculateTweetLengthUseCase
+import com.muhammad.twitterCounterAppMvvm.utils.getTwitterAccessToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,12 +33,16 @@ class TweetViewModel @Inject constructor(
         _charCount.value = CalculateTweetLengthUseCase().execute(newText)
     }
 
-    fun postTweet() {
+    fun getSecureToken(context: Context): String {
+        return getTwitterAccessToken(context)
+    }
+
+    fun postTweet(accessToken: String, tweet: String) {
         if (_charCount.value in 1..280) {
             viewModelScope.launch {
                 _tweetStatus.value = TweetState.Loading
                 try {
-                    twitterRepository.postTweet(_tweetText.value)
+                    twitterRepository.postTweet(accessToken, tweet)
                     _tweetStatus.value = TweetState.Success
                 } catch (e: Exception) {
                     _tweetStatus.value = TweetState.Error(e.message ?: "Unknown error")

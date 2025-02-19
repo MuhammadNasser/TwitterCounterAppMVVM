@@ -2,6 +2,7 @@ package com.muhammad.twitterCounterAppMvvm.ui.screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -41,8 +44,10 @@ import androidx.compose.ui.unit.sp
 import com.muhammad.twitterCounterAppMvvm.R
 import com.muhammad.twitterCounterAppMvvm.ui.TweetViewModel
 import com.muhammad.twitterCounterAppMvvm.ui.theme.backgroundColor
+import com.muhammad.twitterCounterAppMvvm.ui.theme.borderColor
 import com.muhammad.twitterCounterAppMvvm.ui.theme.clearTextColor
 import com.muhammad.twitterCounterAppMvvm.ui.theme.copyTextColor
+import com.muhammad.twitterCounterAppMvvm.ui.theme.placeHolderColor
 import com.muhammad.twitterCounterAppMvvm.ui.theme.titleColor
 import com.muhammad.twitterCounterAppMvvm.ui.theme.twitterColor
 import com.muhammad.twitterCounterAppMvvm.utils.copyToClipboard
@@ -53,10 +58,12 @@ fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
     val charCount by viewModel.charCount.collectAsState()
     val tweetText by viewModel.tweetText.collectAsState()
     val context = LocalContext.current
+    val accessToken = viewModel.getSecureToken(context)
 
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(Color.White)
     ) {
         // Toolbar
         TopAppBar(
@@ -101,7 +108,7 @@ fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
                 StatBox(title = "Characters Remaining", value = "${280 - charCount}")
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Text Field
             TweetTextField(
@@ -109,7 +116,7 @@ fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -140,10 +147,10 @@ fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             Button(
-                onClick = { viewModel.postTweet() },
+                onClick = { viewModel.postTweet(accessToken, tweetText) },
                 colors = ButtonDefaults.buttonColors(containerColor = twitterColor),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -179,7 +186,8 @@ fun StatBox(title: String, value: String) {
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
             color = Color.Black,
-            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally)
+            modifier = Modifier
+                .wrapContentWidth(Alignment.CenterHorizontally)
                 .align(Alignment.CenterHorizontally)
                 .padding(vertical = 16.dp)
         )
@@ -192,7 +200,6 @@ fun TweetTextField(
     modifier: Modifier = Modifier
 ) {
     val maxCharacterLimit = 280
-    val maxLines = 5
     val tweetText by viewModel.tweetText.collectAsState()
 
     OutlinedTextField(
@@ -202,19 +209,28 @@ fun TweetTextField(
                 viewModel.onTweetTextChanged(newText)
             }
         },
-        placeholder = { Text("Start typing! You can enter up to $maxCharacterLimit characters") },
+        placeholder = {
+            Text(
+                "Start typing! You can enter up to $maxCharacterLimit characters",
+                color = placeHolderColor
+            )
+        },
         modifier = modifier
             .fillMaxWidth()
-            .height(250.dp),
+            .height(250.dp)
+            .border(1.dp, borderColor, shape = RoundedCornerShape(10.dp))
+            .shadow(2.dp, shape = RoundedCornerShape(10.dp)),
         shape = RoundedCornerShape(10.dp),
-        maxLines = maxLines,
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Text,
             imeAction = ImeAction.Done
         ),
-        supportingText = {
-            Text(text = "${tweetText.length}/$maxCharacterLimit")
-        },
-        isError = tweetText.length > maxCharacterLimit
+        isError = tweetText.length > maxCharacterLimit,
+        colors = TextFieldDefaults.colors(
+            focusedIndicatorColor = borderColor,
+            unfocusedIndicatorColor = borderColor,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.White
+        )
     )
 }
