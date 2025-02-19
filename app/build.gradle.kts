@@ -81,6 +81,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.ui.test.junit4)
 
+    //twitter
+    implementation("com.twitter.twittertext:twitter-text:3.1.0")
+
 }
 kapt {
     correctErrorTypes = true
