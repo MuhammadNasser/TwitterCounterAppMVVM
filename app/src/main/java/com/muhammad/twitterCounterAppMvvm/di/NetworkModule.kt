@@ -16,7 +16,7 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     fun provideRetrofit(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.twitter.com/1.1/")
+        .baseUrl("https://api.twitter.com/2/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

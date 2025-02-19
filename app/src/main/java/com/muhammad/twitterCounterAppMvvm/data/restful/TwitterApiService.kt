@@ -10,7 +10,7 @@ import retrofit2.http.POST
 
 interface TwitterApiService {
     @Headers("Content-Type: application/json")
-    @POST("https://api.twitter.com/2/tweets")
+    @POST("tweets")
     suspend fun postTweet(
         @Header("Authorization") authHeader: String,
         @Body tweetBody: TweetPayload

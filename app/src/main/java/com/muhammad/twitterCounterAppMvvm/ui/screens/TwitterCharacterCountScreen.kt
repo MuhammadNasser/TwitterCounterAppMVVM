@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.muhammad.twitterCounterAppMvvm.R
+import com.muhammad.twitterCounterAppMvvm.core.TweetState
 import com.muhammad.twitterCounterAppMvvm.ui.TweetViewModel
 import com.muhammad.twitterCounterAppMvvm.ui.theme.backgroundColor
 import com.muhammad.twitterCounterAppMvvm.ui.theme.borderColor
@@ -57,6 +59,8 @@ import com.muhammad.twitterCounterAppMvvm.utils.copyToClipboard
 fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
     val charCount by viewModel.charCount.collectAsState()
     val tweetText by viewModel.tweetText.collectAsState()
+    val tweetStatus by viewModel.tweetStatus.collectAsState()
+
     val context = LocalContext.current
     val accessToken = viewModel.getSecureToken(context)
 
@@ -158,6 +162,13 @@ fun TweetScreen(viewModel: TweetViewModel, onBackClick: () -> Unit) {
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(text = "Post tweet", color = Color.White)
+            }
+
+            when (tweetStatus) {
+                is TweetState.Loading -> CircularProgressIndicator()
+                is TweetState.Success -> Text("✅ Tweet posted successfully!", color = Color.Green)
+                is TweetState.Error -> Text("❌ ${(tweetStatus as TweetState.Error).message}", color = Color.Red)
+                is TweetState.Idle -> {}
             }
         }
     }

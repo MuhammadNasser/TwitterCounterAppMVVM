@@ -42,8 +42,13 @@ class TweetViewModel @Inject constructor(
             viewModelScope.launch {
                 _tweetStatus.value = TweetState.Loading
                 try {
-                    twitterRepository.postTweet(accessToken, tweet)
-                    _tweetStatus.value = TweetState.Success
+                    val response = twitterRepository.postTweet(accessToken, tweet)
+
+                    if (response != null) {
+                        _tweetStatus.value = TweetState.Success(response)
+                    } else {
+                        _tweetStatus.value = TweetState.Error("Failed to post tweet")
+                    }
                 } catch (e: Exception) {
                     _tweetStatus.value = TweetState.Error(e.message ?: "Unknown error")
                 }
@@ -51,4 +56,3 @@ class TweetViewModel @Inject constructor(
         }
     }
 }
-

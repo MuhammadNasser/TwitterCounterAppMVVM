@@ -12,7 +12,7 @@ import retrofit2.http.POST;
 public abstract interface TwitterApiService {
     
     @retrofit2.http.Headers(value = {"Content-Type: application/json"})
-    @retrofit2.http.POST(value = "https://api.twitter.com/2/tweets")
+    @retrofit2.http.POST(value = "tweets")
     @org.jetbrains.annotations.Nullable()
     public abstract java.lang.Object postTweet(@retrofit2.http.Header(value = "Authorization")
     @org.jetbrains.annotations.NotNull()
