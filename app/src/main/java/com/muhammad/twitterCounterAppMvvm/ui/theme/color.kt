@@ -38,6 +38,6 @@ val backgroundColor = Color(
 
 val twitterColor = Color(
     android.graphics.Color.parseColor(
-        "#E6F6FE"
+        "#03A9F4"
     )
 )
